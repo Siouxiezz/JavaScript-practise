@@ -14,7 +14,7 @@ type Order =
 
 let cashInRegister = 100;
 let nexOrderID = 1;
-let nextPizzaID = 5;
+let nextPizzaID = 1;
 
 const menu: Pizza[] = 
 [
@@ -38,11 +38,6 @@ function addNewPizza(pizzaObj: Omit<Pizza, "id">): Pizza
     return newPizza;
 }
 
-    addNewPizza({ name: "Chicken BBQ", price: 15});
-    addNewPizza({ name: "Spicy Sausage", price: 6});
-    addNewPizza({ name: "Burata Sausage", price: 11});
-    addNewPizza({ name: "Chicken Ranch", price: 13}); 
-
 function placeOrder(pizzaName: string): Order | undefined
 {
     const selectedPizza = menu.find(pizzaObj => pizzaObj.name === pizzaName);
@@ -51,15 +46,30 @@ function placeOrder(pizzaName: string): Order | undefined
         console.error(`${pizzaName} does not exist in menu`);
         return;
     }
-    cashInRegister += selectedPizza.price;
+    
     const newOrder: Order = {id: nexOrderID++, pizza: selectedPizza, status: "ordered"};
     orderQueue.push(newOrder);
+    cashInRegister += selectedPizza.price;
     return newOrder;
 }
 
+// Generic функція як заміна функцій addNewPizza та placeOrder, вона може працювати з будь-яким типом даних
+
+// function addToArray<Type>(array: Type[], item: Type): Type[]
+// {
+//     array.push(item);
+//     return array;
+// }
+
+// addToArray<Pizza>(menu, { id: nextPizzaID++, name: "Chicken Ranch", price: 13});
+// addToArray<Order>(orderQueue, { id: nexOrderID++, pizza: menu[2], status: "completed"});
+
+// console.log("Menu: ", menu);
+// console.log("Order queue: ", orderQueue);
+
 function completeOrder(orderId: number): Order | undefined
 {
-    const order = orderQueue.find(order => order.id === order.id);
+    const order = orderQueue.find(order => order.id === orderId);
     if(!order)
     {
         console.error(`${orderId} was not found in the order queue`);
@@ -85,8 +95,12 @@ function getPizzaDetail(identifier: string | number): Pizza | undefined
             {
                 console.error("Parameter `identifier` must be either a string or a number");
             }
-        }
+}
         
+    addNewPizza({ name: "Chicken BBQ", price: 15});
+    addNewPizza({ name: "Spicy Sausage", price: 6});
+    addNewPizza({ name: "Burata Sausage", price: 11});
+    addNewPizza({ name: "Chicken Ranch", price: 13}); 
 
 placeOrder("Chicken BBQ");
 placeOrder("Pepperoni");
