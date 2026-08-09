@@ -28,11 +28,19 @@ function displayMenu()
 {
     const menuElement = document.getElementById("menu");
 
+    if(menuElement)
+    {
+        menuElement.innerHTML = "";
+    }
+
     menu.forEach(pizzaObj => {
         const pizzaElement = document.createElement("div");
         const pizzaInfo = document.createElement("span");
         const orderButton = document.createElement("button");
         
+        pizzaElement.classList.add("menu-item");
+        orderButton.classList.add("order-button");
+
         pizzaInfo.textContent = `${pizzaObj.name} - ${pizzaObj.price}$`;
         orderButton.textContent = "Order";
 
@@ -41,6 +49,7 @@ function displayMenu()
             if(order)
             {
                 displayOrders();
+                displayTotalPrice();
                 console.log(`Order placed: ${order.pizza.name} - ${order.pizza.price}$`);
             }
         });
@@ -63,13 +72,80 @@ function displayOrders()
     
     orderQueue.forEach(order => {
         const orderInfo = document.createElement("div");
+
         orderInfo.textContent = `Order ID: ${order.id}, Pizza: ${order.pizza.name}, Status: ${order.status}`;
+
+        if(order.status === "ordered")
+        {
+            const completeButton = document.createElement("button");
+            
+            completeButton.textContent = "Complete";
+            completeButton.addEventListener("click", () => {
+                const completedOrder = completeOrder(order.id);
+                if(completedOrder)
+                {
+                    displayOrders();
+                    console.log(`Order completed: ${completedOrder.pizza.name} - ${completedOrder.pizza.price}$`);
+                }
+            });
+        orderInfo.appendChild(completeButton);  
+        }
         
         orderElement?.appendChild(orderInfo);
     });
 }
 
 const orderQueue: Order[] = [];
+
+function calculateTotalPrice()
+{
+    let totalPrice = 0;
+    orderQueue.forEach(order => {
+        totalPrice += order.pizza.price;
+    });
+    return totalPrice;
+}
+
+function displayTotalPrice()
+{
+    const totalPriceElement = document.getElementById("total");
+    if(totalPriceElement)
+    {
+        totalPriceElement.textContent = `Total: $${calculateTotalPrice()}`;
+    }
+}
+
+function completeAllOrders()
+{
+    const completeOrderElement = document.getElementById("complete-order");
+    const closeReceiptButton = document.getElementById("close-receipt");
+    const receiptElement = document.getElementById("receipt");
+    const receiptContentElement = document.getElementById("receipt-content");
+
+    closeReceiptButton?.addEventListener("click", () => {
+            receiptElement?.classList.add("hidden");
+    });
+
+    completeOrderElement?.addEventListener("click", () => {
+        if(orderQueue.length > 0)
+        {
+            let receipt = "<h2>Receipt</h2>";
+
+            orderQueue.forEach(order => { 
+                    receipt += `<p>Order ID: ${order.id}, Pizza: ${order.pizza.name}, Price: ${order.pizza.price}$</p> `;
+            });
+            const totalPrice = calculateTotalPrice();
+            receipt += `<hr> <h3>Total: $${totalPrice}</h3> <h3>Thank you for your order!</h3>`;
+
+            if(receiptContentElement)
+            {
+                receiptContentElement.innerHTML = receipt;
+            }
+            receiptElement?.classList.remove("hidden");
+        }
+    });  
+}
+
 
 function addNewPizza(pizzaObj: Omit<Pizza, "id">): Pizza
 {
@@ -134,12 +210,10 @@ addNewPizza({ name: "Spicy Sausage", price: 6});
 addNewPizza({ name: "Burata Sausage", price: 11});
 addNewPizza({ name: "Chicken Ranch", price: 13}); 
 
-placeOrder("Chicken BBQ");
-placeOrder("Pepperoni");
-completeOrder(1);
-placeOrder("Four cheese");
-placeOrder("Chicken BBQ");
-completeOrder(2);
+displayMenu();
+displayOrders();
+displayTotalPrice();
+completeAllOrders();
 
 console.log("Menu: ", menu);
 console.log("Cash in register: ", cashInRegister);

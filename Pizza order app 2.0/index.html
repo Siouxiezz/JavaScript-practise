@@ -28,11 +28,17 @@
                 <!-- Ordered pizzas will be added here -->
             </div>
 
-            <h3>Total: $<span id="total">0</span></h3>
+            <h3><span id="total">Total: $0</span></h3>
 
             <button id="complete-order">
                 Complete Order
             </button>
+
+            <div id="receipt" class="receipt hidden">
+                <button id="close-receipt" class="close-receipt">×</button>
+
+                <div id="receipt-content"></div>
+            </div>
         </section>
 
     </main>
